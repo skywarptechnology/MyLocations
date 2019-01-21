@@ -1,17 +1,16 @@
-package com.sky.mylocations
+package com.sky.mylocations.activities
 
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
-import androidx.appcompat.app.AppCompatActivity
+import android.view.View
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.sky.mylocations.*
+import com.sky.mylocations.support.*
 import kotlinx.android.synthetic.main.activity_places.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
 
 /**
@@ -21,11 +20,14 @@ import retrofit2.Response
 /**
  * shows list of places for the locality and for search
  */
-class PlacesActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
+class PlacesActivity : CoroutineActivity(), SearchView.OnQueryTextListener {
 
+    /**
+     * action bar search listener
+     */
     override fun onQueryTextSubmit(query: String?): Boolean {
         if (!query.isNullOrBlank()) {
-            callApiForSearchPlaces(query)
+            fetchData(query)
             return true
         }
         return false
@@ -38,7 +40,7 @@ class PlacesActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
     /**
      * listener for particular place selection from the places list
      */
-    val onClick: (LocationDetailData) -> Unit = { data ->
+    private val onClick: (LocationDetailData) -> Unit = { data ->
         val intent = Intent(this@PlacesActivity, MapsActivity::class.java)
         intent.putExtra(MapsActivity.KEY_TITLE, data.name)
         intent.putExtra(MapsActivity.KEY_ADDRESS, data.vicinity)
@@ -68,43 +70,38 @@ class PlacesActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_places)
 
-        API_KEY = getString(R.string.google_maps_key)
+        API_KEY = getString(R.string.google_maps_key) // initiate api key from the resource
 
         setSupportActionBar(ui_act_places_toolBarV)
-
         initList()
-        callApiForSearchPlaces("food")
+        fetchData("food")
     }
 
     /**
+     * coroutine call with retro implementation for
      * search places by given search query and update the list view
      */
-    private fun callApiForSearchPlaces(search: String) {
-        val placeDetails = locationApi.getPlaces(
-            radius = "1000",
-            location = "19,-99",
-            types = search
-        )
+    private fun fetchData(search: String) {
 
-        placeDetails.enqueue(object : Callback<PlacesData> {
-            override fun onFailure(call: Call<PlacesData>, t: Throwable) {
-                t.printStackTrace()
-            }
+        //basically ignores the exception if any
+        launchWithoutEx {
 
-            override fun onResponse(call: Call<PlacesData>, response: Response<PlacesData>) {
-                val data = response.body()
-                data.lg()
-                data?.results?.let {
-                    setListData(it)
-                }
+            ui_act_places_ProgressV.visibility = View.VISIBLE
+
+            val placeDetails = locationApi.getPlaces(radius = "1000", location = "19,-99", types = search)
+            val data = placeDetails.callApi()
+            data?.let {
+                setListData(it.results)
             }
-        })
+            ui_act_places_ProgressV.visibility = View.INVISIBLE
+        }
     }
+
 
     /**
      * sets list data to the list view adapter
      */
-    fun setListData(list: List<LocationDetailData>) {
+    private fun setListData(list: List<LocationDetailData>) {
         ui_act_places_ListV.adapter = PlacesListAdapter(list, onClick)
     }
 
@@ -115,5 +112,4 @@ class PlacesActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
         val layoutManager = LinearLayoutManager(this)
         ui_act_places_ListV.layoutManager = layoutManager
     }
-
 }

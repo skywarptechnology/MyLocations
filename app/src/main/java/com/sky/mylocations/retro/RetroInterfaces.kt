@@ -1,5 +1,8 @@
-package com.sky.mylocations
+package com.sky.mylocations.retro
 
+import com.sky.mylocations.support.LocationData
+import com.sky.mylocations.support.PlacesData
+import com.sky.mylocations.support.API_KEY
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -16,7 +19,7 @@ interface LocationApi {
 
     @GET("nearbysearch/json")
     fun getPlaces(
-        @Query("key") apiKey: String=API_KEY,
+        @Query("key") apiKey: String= API_KEY,
         @Query("radius") radius: String,
         @Query("types") types: String,
         @Query("location") location: String

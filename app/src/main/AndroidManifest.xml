@@ -41,10 +41,10 @@
                 android:required="false"/>
 
         <activity
-                android:name=".MapsActivity"
+                android:name=".activities.MapsActivity"
                 android:label="@string/title_activity_maps">
         </activity>
-        <activity android:name=".PlacesActivity"
+        <activity android:name=".activities.PlacesActivity"
                   android:label="@string/title_activity_places">
             <meta-data
                     android:name="com.google.android.actions"

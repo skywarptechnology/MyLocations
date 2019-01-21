@@ -1,10 +1,15 @@
-package com.sky.mylocations
+package com.sky.mylocations.support
 
+import android.app.Activity
+import android.content.Intent
 import android.util.Log
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.sky.mylocations.retro.LocationApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -67,10 +72,18 @@ fun GoogleMap.setupLocationOnMap(lat: Double, lng: Double, title: String) {
     moveCamera(cameraUpdate)
 }
 
+fun Activity.shareAddressViaOtherApps(subject: String, message: String) {
+    val sharingIntent = Intent(Intent.ACTION_SEND)
+    sharingIntent.type = "text/plain"
+    sharingIntent.putExtra(Intent.EXTRA_SUBJECT, subject)
+    sharingIntent.putExtra(Intent.EXTRA_TEXT, message)
+    startActivity(Intent.createChooser(sharingIntent, "Share Address"))
+}
+
 /**
  * co-routine implementation for retrofir future object
  */
-suspend fun <T> Call<T>.callApi(): T {
+suspend fun <T> Call<T>.callApi(): T? {
     return suspendCoroutine { continuation ->
 
         enqueue(object : Callback<T> {
@@ -97,5 +110,21 @@ inline fun ignoreEx(call: () -> Unit) {
         call()
     } catch (e: Exception) {
         e.printStackTrace()
+    }
+}
+
+/**
+ * this is support util func for CoroutineScope.launch
+ * while ignoreing exception
+ *
+ * @param fnc provide callback crossinline fnc for coroutine launch function
+ */
+inline fun CoroutineScope.launchWithoutEx(crossinline fnc: suspend () -> Unit) {
+    launch {
+        try {
+            fnc()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

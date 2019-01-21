@@ -1,10 +1,11 @@
-package com.sky.mylocations
+package com.sky.mylocations.support
 
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.sky.mylocations.R
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_list_places.view.*
 import kotlinx.android.synthetic.main.item_map_photolist.view.*

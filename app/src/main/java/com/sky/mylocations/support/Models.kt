@@ -1,4 +1,4 @@
-package com.sky.mylocations
+package com.sky.mylocations.support
 
 /**
  * Created by skyalligator on 1/20/19.

@@ -1,23 +1,18 @@
-package com.sky.mylocations
+package com.sky.mylocations.activities
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.sky.mylocations.R
+import com.sky.mylocations.support.*
 import kotlinx.android.synthetic.main.activity_maps.*
-import retrofit2.Call
-
-import retrofit2.Callback
-import retrofit2.Response
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : CoroutineActivity(), OnMapReadyCallback {
 
     /**
      * key constants for argument passing from other activity
@@ -30,8 +25,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val KEY_PLACEID = "place_id"
     }
 
+    //location variables
     var lat: Double = 0.0
     var lng: Double = 0.0
+
+    //ui variables
     lateinit var title: String
     lateinit var address: String
     lateinit var placeID: String
@@ -65,47 +63,39 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
      * sets up map, title, address text view and share icon listener
      */
     private fun setupUI() {
+
         setupTitleBar()
 
         ui_place_detailAct_detailAddrV.text = address
 
-        ui_place_detailAct_shareV.setOnClickListener {
-
-            val sharingIntent = Intent(Intent.ACTION_SEND)
-            sharingIntent.type = "text/plain"
-            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "Place")
-            sharingIntent.putExtra(Intent.EXTRA_TEXT, "$title : $address")
-            startActivity(Intent.createChooser(sharingIntent, "Share Address"))
-        }
+        ui_place_detailAct_shareV.setOnClickListener { shareAddressViaOtherApps("Place", "$title : $address") }
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.ui_place_detailAct_mapV) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
+
     /**
-     * Retro api call for photos and callback implementation
+     * coroutine call with retro implementation for
+     * photos and callback implementation
      */
     private fun callApiForLocationPhotos() {
-        val placeDetails = locationApi.getPlaceDetails(
-            apiKey = API_KEY,
-            placeId = placeID
-        )
 
-        placeDetails.enqueue(object : Callback<LocationData> {
-            override fun onFailure(call: Call<LocationData>, t: Throwable) {
-                t.printStackTrace()
-            }
+        //basically ignores the exception if any
+        launchWithoutEx {
 
-            override fun onResponse(call: Call<LocationData>, response: Response<LocationData>) {
-                val photos = response.body()?.result?.photos
-                if (photos != null) {
-                    ui_place_detailAct_noImagesTV.visibility = View.INVISIBLE
-                    setupPhotos(photos)
-                } else {
-                    ui_place_detailAct_noImagesTV.visibility = View.VISIBLE
-                }
+            val placeDetails = locationApi.getPlaceDetails(apiKey = API_KEY, placeId = placeID)
+            val photos = placeDetails.callApi()?.result?.photos
+
+            if (photos != null) {
+
+                ui_place_detailAct_noImagesTV.visibility = View.INVISIBLE
+                setupPhotos(photos)
+            } else {
+
+                ui_place_detailAct_noImagesTV.visibility = View.VISIBLE
             }
-        })
+        }
     }
 
     /**
@@ -129,6 +119,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
+    /**
+     * back arrow listener in actionbar
+     */
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             android.R.id.home -> finish() // finishes this activity when the back arrow key pressed
