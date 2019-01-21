@@ -46,6 +46,9 @@
         </activity>
         <activity android:name=".PlacesActivity"
                   android:label="@string/title_activity_places">
+            <meta-data
+                    android:name="com.google.android.actions"
+                    android:resource="@xml/searchable"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 

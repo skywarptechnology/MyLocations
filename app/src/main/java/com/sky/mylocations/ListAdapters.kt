@@ -4,14 +4,21 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_list_places.view.*
+import kotlinx.android.synthetic.main.item_map_photolist.view.*
 
 /**
  * Created by skyalligator on 1/20/19.
  * 3:41 PM
+ */
+
+/**
+ * places list adapter
+ *
+ * @param placesList list of LocationDetailData
+ * @param onClick listener for on item click
  */
 class PlacesListAdapter(val placesList: List<LocationDetailData>, val onClick: (LocationDetailData) -> Unit) :
     RecyclerView.Adapter<PlacesListAdapter.Holder>() {
@@ -46,6 +53,11 @@ class PlacesListAdapter(val placesList: List<LocationDetailData>, val onClick: (
     }
 }
 
+/**
+ * photo gallery adapter
+ *
+ * @param photos list of PhotoData
+ */
 class PhotoGalleryAdapter(val photos: List<PhotoData>) :
     RecyclerView.Adapter<PhotoGalleryAdapter.PhotoHolder>() {
 
@@ -64,12 +76,11 @@ class PhotoGalleryAdapter(val photos: List<PhotoData>) :
     class PhotoHolder(itemV: View) : RecyclerView.ViewHolder(itemV) {
 
         fun setValToViews(photo: PhotoData) {
-            val uri = Uri.parse("${BASE_URL}photo?maxwidth=400&photoreference=${photo.photo_reference}&key=$API_KEY")
-            val imgv=itemView as ImageView
+            val uri = Uri.parse("${BASE_URL}photo?maxwidth=600&photoreference=${photo.photo_reference}&key=$API_KEY")
             Picasso.get()
                 .load(uri)
                 .error(R.drawable.ic_location)
-                .into(imgv)
+                .into(itemView.ui_itemPhotoList_imgV)
 
         }
     }

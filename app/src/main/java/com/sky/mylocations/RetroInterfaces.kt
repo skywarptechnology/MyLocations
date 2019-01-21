@@ -9,6 +9,9 @@ import retrofit2.http.Query
  * 1:32 PM
  */
 
+/**
+ * Retrofit implementation for google location service
+ */
 interface LocationApi {
 
     @GET("nearbysearch/json")
@@ -18,13 +21,6 @@ interface LocationApi {
         @Query("types") types: String,
         @Query("location") location: String
     ): Call<PlacesData>
-
-//    @GET("photo")
-//    fun getPhotoData(
-//        @Query("key") apiKey: String,
-//        @Query("photoreference") photoReference: String,
-//        @Query("maxwidth") width: String
-//    ): String
 
     @GET("details/json")
     fun getPlaceDetails(

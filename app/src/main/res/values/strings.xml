@@ -2,4 +2,6 @@
     <string name="app_name">MyLocations</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_places">Places</string>
+    <string name="search_hint">food</string>
+    <string name="action_search_title">Find</string>
 </resources>
